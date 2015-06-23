@@ -1,6 +1,4 @@
-WORDS      = File.readlines('words.txt').map(&:strip)
-VOWELS     = %w(a e i o u)
-CONSONANTS = ('a'..'z').to_a - VOWELS
+WORDS = File.readlines('words.txt').map(&:strip)
 
 class Trie
   attr_accessor :tree
@@ -10,14 +8,14 @@ class Trie
     WORDS.each { |word| self.add(word) }
   end
 
-  def add(word, subtree = @tree)
+  def add(word, node = @tree)
     if word.length == 0
-      subtree[:end] = true
+      node[:end] = true
     else
-      first_char = word[0]
+      first = word[0]
       rest = word[1..-1]
-      subtree[first_char] ||= {}
-      add(rest, subtree[first_char])
+      node[first] ||= {}
+      add(rest, node[first])
     end
   end
 end
@@ -30,13 +28,13 @@ class Node
     @square = square
     @dictionary_node = dictionary_node
     @parent = parent
-    @visited = visited
   end
 end
 
 def boggle(board, dictionary)
   queue, words = [],[]
   neighbor_coordinates = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[-1,1],[1,-1]]
+  
   (0..3).each do |row|
     (0..3).each do |column|
       square = board[row][column]
@@ -44,31 +42,26 @@ def boggle(board, dictionary)
       parent = nil
       queue << Node.new(row, column, square, dictionary_node, parent)
     end
+    
   end
 
   while queue.any?
     current_node = queue.pop
     neighbor_coordinates.each do |x,y|
-
       row2 = current_node.row + x
       column2 = current_node.column + y
 
       if [row2,column2].all? { |index| index.between?(0,3) }
-
         next_square          = board[row2][column2]
         next_dictionary_node = current_node.dictionary_node[next_square]
         parent = current_node
 
         if next_dictionary_node
-
           new_node = Node.new(row2, column2, next_square, next_dictionary_node, parent)
-
           if (next_dictionary_node[:end] == true) && unique_path?(new_node)
               words << build_word(new_node)
           end
-
           queue << new_node
-
         end
       end
     end
