@@ -10,7 +10,7 @@ class Trie
 
   def add(word, node = @tree)
     if word.length == 0
-      node[:end] = true
+      node[:complete] = true
     else
       first = word[0]
       rest = word[1..-1]
@@ -34,7 +34,7 @@ end
 def boggle(board, dictionary)
   queue, words = [],[]
   neighbor_coordinates = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[-1,1],[1,-1]]
-  
+
   (0..3).each do |row|
     (0..3).each do |column|
       square = board[row][column]
@@ -42,7 +42,7 @@ def boggle(board, dictionary)
       parent = nil
       queue << Node.new(row, column, square, dictionary_node, parent)
     end
-    
+
   end
 
   while queue.any?
@@ -58,7 +58,7 @@ def boggle(board, dictionary)
 
         if next_dictionary_node
           new_node = Node.new(row2, column2, next_square, next_dictionary_node, parent)
-          if (next_dictionary_node[:end] == true) && unique_path?(new_node)
+          if next_dictionary_node[:complete] && unique_path?(new_node)
               words << build_word(new_node)
           end
           queue << new_node
